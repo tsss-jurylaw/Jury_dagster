@@ -1,0 +1,12 @@
+dagster==1.10.9
+supabase==2.15.0
+clickhouse-driver==0.2.9
+meilisearch==0.34.1
+dagster-webserver==1.10.9
+python-dotenv==1.0.1
+requests==2.32.3
+Crawl4AI==0.5.0.post8
+langchain==0.3.23
+langchain-community==0.3.21
+langchain-core==0.3.51
+langchain-ollama==0.3.1
