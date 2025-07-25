@@ -5,43 +5,70 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SUPABASE_URL = os.getenv("jury_law_supabase_url")
-SUPABASE_KEY = os.getenv("jury_law_supabase_key")
-SUPABASE_SCHEMA = os.getenv("jury_law_SUPABASE_SCHEMA")
-SUPABASE_TABLE = os.getenv("jury_law_SUPABASE_ARTICLES_TABLE")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_SCHEMA = os.getenv("SUPABASE_SCHEMA")
+SUPABASE_TABLE = os.getenv("SUPABASE_TABLE")
+
+if not all([SUPABASE_URL, SUPABASE_KEY, SUPABASE_SCHEMA, SUPABASE_TABLE]):
+    raise ValueError("Missing Supabase configuration in .env file.")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+
+def get_uuid_map(table: str, name_field: str = "name") -> dict:
+    """Fetch UUID mapping from a table based on a name field."""
+    try:
+        response = supabase.schema(SUPABASE_SCHEMA).table(table).select(f"id, {name_field}").execute()
+        if not response.data:
+            print(f"[WARN] No data in {table}")
+            return {}
+        return {row[name_field].strip().lower(): row["id"] for row in response.data}
+    except Exception as e:
+        print(f"[ERROR] get_uuid_map failed for table '{table}': {e}")
+        return {}
+
+
 @asset
-def supabase_articles_asset(context: AssetExecutionContext, constitution_articles: list) -> None:
+def jury_supabase(context: AssetExecutionContext, constitution_articles: list) -> None:
+    """Insert constitution articles into Supabase with category UUID mapping."""
     if not constitution_articles:
-        context.log.warning(" No Constitution articles to insert.")
+        context.log.warning("No constitution_articles to insert into Supabase.")
         return
+
+    category_map = get_uuid_map("categories")
 
     table = supabase.schema(SUPABASE_SCHEMA).table(SUPABASE_TABLE)
     inserted_count = 0
 
-    for part in constitution_articles:
-        for article in part.get("articles", []):
-            details = article.get("details", {})
-            try:
-                res = table.insert({
-                    "id": article.get("id"),
-                    "part_name": part.get("part_name", ""),
-                    "part_title": part.get("part_title", ""),
-                    "article_range": part.get("article_range", ""),
-                    "article_title": article.get("article_title", ""),
-                    "article_url": article.get("article_url", ""),
-                    "detail_title": details.get("title", ""),
-                    "detail_text": details.get("text", ""),
-                    "version_1": details.get("version_1", ""),
-                    "version_2": details.get("version_2", ""),
-                    "summary": details.get("summary", "")
-                }).execute()
-                if res.data:
-                    inserted_count += 1
-                    context.log.info(f" Inserted article: {article.get('article_title')}")
-            except Exception as e:
-                context.log.error(f" Failed to insert article {article.get('article_title')}: {e}")
+    for section in constitution_articles:
+        try:
+            raw_category = section.get("category_id", "").strip().lower()
+            category_uuid = category_map.get(raw_category)
 
-    context.log.info(f" Supabase insert completed: {inserted_count} rows.")
+            if not category_uuid:
+                context.log.warning(
+                    f"Skipping section {section.get('section_number', section.get('id', 'unknown'))} — unknown category '{raw_category}'"
+                )
+                continue
+
+            res = table.insert({
+                "id": section["id"],
+                "Question": section["Question"],
+                "Answer": section["Answer"],
+                "url": section["url"],
+                "category_id": category_uuid
+            }).execute()
+
+            if res.data:
+                inserted_count += 1
+                context.log.info(
+                    f"Inserted section {section.get('section_number', section.get('id', 'unknown'))}"
+                )
+
+        except Exception as e:
+            context.log.error(
+                f"Supabase insert failed for section {section.get('section_number', section.get('id', 'unknown'))}: {e}"
+            )
+
+    context.log.info(f"Supabase insert completed: {inserted_count} rows.")
