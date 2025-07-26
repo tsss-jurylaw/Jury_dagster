@@ -28,12 +28,11 @@ def get_uuid_map(table: str, name_field: str = "name") -> dict:
         print(f"[ERROR] get_uuid_map failed for table '{table}': {e}")
         return {}
 
-
 @asset
-def jury_supabase(context: AssetExecutionContext, constitution_articles: list) -> None:
-    """Insert constitution articles into Supabase with category UUID mapping."""
-    if not constitution_articles:
-        context.log.warning("No constitution_articles to insert into Supabase.")
+def jury_supabase(context: AssetExecutionContext, constitution_articles, ipc_sections_asset: list) -> None:
+    """Insert constitution articles, ipc_sections_asset into Supabase with category UUID mapping."""
+    if not constitution_articles + ipc_sections_asset:
+        context.log.warning("No constitution_articles, ipc_sections_asset to insert into Supabase.")
         return
 
     category_map = get_uuid_map("categories")
@@ -41,7 +40,7 @@ def jury_supabase(context: AssetExecutionContext, constitution_articles: list) -
     table = supabase.schema(SUPABASE_SCHEMA).table(SUPABASE_TABLE)
     inserted_count = 0
 
-    for section in constitution_articles:
+    for section in constitution_articles, ipc_sections_asset:
         try:
             raw_category = section.get("category_id", "").strip().lower()
             category_uuid = category_map.get(raw_category)
