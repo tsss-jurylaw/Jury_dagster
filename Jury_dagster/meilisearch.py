@@ -1,4 +1,3 @@
-
 import os
 import requests
 import time
@@ -38,7 +37,7 @@ def wait_for_meilisearch_task(task_uid: int, timeout: int = 10) -> bool:
 
 
 @asset
-def meilisearch_articles_asset(constitution_articles, ipc_sections_asset,bns_sections_asset: list) -> None:
+def meilisearch_asset(constitution_articles, ipc_sections_asset,bns_sections_asset,hma_sections_asset: list) -> None:
     if not all([MEILISEARCH_HOST, MEILISEARCH_KEY, INDEX_NAME]):
         print(" Missing Meilisearch environment configuration.")
         return
@@ -56,7 +55,7 @@ def meilisearch_articles_asset(constitution_articles, ipc_sections_asset,bns_sec
             return
 
     docs = []
-    for article in constitution_articles, ipc_sections_asset, bns_sections_asset:
+    for article in constitution_articles, ipc_sections_asset, bns_sections_asset , hma_sections_asset:
         docs.append({
             "id": article.get("id"),
             "Question": article.get("Question", ""),
@@ -73,5 +72,3 @@ def meilisearch_articles_asset(constitution_articles, ipc_sections_asset,bns_sec
             print(f" Indexed {len(docs)} articles into Meilisearch.")
     else:
         print(" Error inserting documents:", res.text)
-
-
