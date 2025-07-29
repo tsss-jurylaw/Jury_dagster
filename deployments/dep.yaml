@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jury-dagster
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: jury-dagster
+  template:
+    metadata:
+      labels:
+        app: jury-dagster
+    spec:
+      imagePullSecrets:
+        - name: Ashwin1368 
+      containers:
+        - name: jury-dagster
+          image: ghcr.io/tsss-jurylaw/jury_dagster:latest
+          imagePullPolicy: Always    
+          envFrom:
+            - secretRef:
+                name: Jury_dagster
+          ports:
+            - containerPort: 4000
