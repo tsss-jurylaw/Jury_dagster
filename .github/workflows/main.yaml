@@ -15,7 +15,7 @@ jobs:
         with:
           registry: ghcr.io
           username: Ashwin1368
-          password: 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
+          password: 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
           logout: false
       - name: Build and push
         uses: docker/build-push-action@v4
