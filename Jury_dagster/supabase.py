@@ -71,21 +71,3 @@ def jury_supabase(context: AssetExecutionContext, constitution_articles, ipc_sec
             )
 
     context.log.info(f"Supabase insert completed: {inserted_count} rows.")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

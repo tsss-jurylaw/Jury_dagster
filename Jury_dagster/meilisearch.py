@@ -72,6 +72,3 @@ def meilisearch_articles_asset(constitution_articles, ipc_sections_asset,bns_sec
             print(f" Indexed {len(docs)} articles into Meilisearch.")
     else:
         print(" Error inserting documents:", res.text)
-
-
-
