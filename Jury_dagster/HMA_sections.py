@@ -89,7 +89,7 @@ async def fetch_hma_sections():
             await asyncio.sleep(2)
 
         print(f" Scraped {len(results)} HMA sections.")
-        return results
+        return results 
 
 @asset(name="hma_sections_asset")
 def hma_sections_asset() -> Output[list]:
