@@ -15,7 +15,7 @@ jobs:
         with:
           registry: ghcr.io
           username: csagent369
-          password: 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
+          password: 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
           logout: false
       - name: Build and push
         uses: docker/build-push-action@v4
