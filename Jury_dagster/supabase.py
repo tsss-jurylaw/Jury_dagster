@@ -29,10 +29,10 @@ def get_uuid_map(table: str, name_field: str = "name") -> dict:
         return {}
 
 @asset
-def jury_supabase(context: AssetExecutionContext, constitution_articles, ipc_sections_asset,bns_sections_asset,hma_sections_asset,income_tax_act_sections_asset,posh_act_sections_asset,crpc_sections_asset,cpc_sections_asset,lawyers_category_asset: list) -> None:
-    """Insert constitution articles, ipc_sections_asset,bns_sections_asset,hma_sections_asset,income_tax_act_sections_asset,posh_act_sections_asset,crpc_sections_asset ,cpc_sections_asset,lawyers_category_asset into Supabase with category UUID mapping."""
-    if not constitution_articles + ipc_sections_asset + bns_sections_asset + hma_sections_asset + income_tax_act_sections_asset + posh_act_sections_asset + crpc_sections_asset + cpc_sections_asset + lawyers_category_asset:
-        context.log.warning("No constitution_articles, ipc_sections_asset , bns_sections_asset ,hma_sections_asset, income_tax_act_sections_asset,posh_act_sections_asset, crpc_sections_asset , cpc_sections_asset,lawyers_category_asset to insert into Supabase.")
+def supabase_asset(context: AssetExecutionContext, constitution_articles, ipc_sections_asset,bns_sections_asset,hma_sections_asset,income_tax_act_sections_asset,posh_act_sections_asset,crpc_sections_asset,cpc_sections_asset,lawyers_category_asset,legal_questions_asset: list) -> None:
+    """Insert constitution articles, ipc_sections_asset,bns_sections_asset,hma_sections_asset,income_tax_act_sections_asset,posh_act_sections_asset,crpc_sections_asset ,cpc_sections_asset,lawyers_category_asset,legal_questions_asset into Supabase with category UUID mapping."""
+    if not constitution_articles + ipc_sections_asset + bns_sections_asset + hma_sections_asset + income_tax_act_sections_asset + posh_act_sections_asset + crpc_sections_asset + cpc_sections_asset + lawyers_category_asset + legal_questions_asset:
+        context.log.warning("No constitution_articles, ipc_sections_asset , bns_sections_asset ,hma_sections_asset, income_tax_act_sections_asset,posh_act_sections_asset, crpc_sections_asset , cpc_sections_asset,lawyers_category_asset,legal_questions_asset to insert into Supabase.")
         return
 
     category_map = get_uuid_map("categories")
@@ -40,7 +40,7 @@ def jury_supabase(context: AssetExecutionContext, constitution_articles, ipc_sec
     table = supabase.schema(SUPABASE_SCHEMA).table(SUPABASE_TABLE)
     inserted_count = 0
 
-    for section in constitution_articles, ipc_sections_asset , bns_sections_asset ,hma_sections_asset, income_tax_act_sections_asset ,posh_act_sections_asset, crpc_sections_asset , cpc_sections_asset , lawyers_category_asset:
+    for section in constitution_articles, ipc_sections_asset , bns_sections_asset ,hma_sections_asset, income_tax_act_sections_asset ,posh_act_sections_asset, crpc_sections_asset , cpc_sections_asset , lawyers_category_asset , legal_questions_asset:
         try:
             raw_category = section.get("category_id", "").strip().lower()
             category_uuid = category_map.get(raw_category)
